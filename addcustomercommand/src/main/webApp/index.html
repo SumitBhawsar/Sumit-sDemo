@@ -1,0 +1,153 @@
+<html data-ng-app="Onboarding">
+<head>
+
+<!-- Jquery -->
+<script type="text/javascript" src="js/jquery-3.1.1/jquery-3.1.1.min.js"></script>
+
+<!-- BootStrap -->
+<script type="text/javascript"
+	src="js/bootstrap-3.3.7/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="js/bootstrap-3.3.7/css/bootstrap-theme.css"></link>
+<link rel="stylesheet" href="js/bootstrap-3.3.7/css/bootstrap.css"></link>
+
+<!-- Angular JS -->
+<script type="text/javascript" src="js/angular/angular.min.js"></script>
+<script type="text/javascript" src="js/angular/angular-animate.min.js"></script>
+<script type="text/javascript" src="js/angular/angular-aria.min.js"></script>
+<script type="text/javascript" src="js/angular/angular-messages.min.js"></script>
+
+<!-- Angular -Material -->
+<script type="text/javascript"
+	src="js/angular-material-1.1.1/angular-material.min.js"></script>
+<link rel="stylesheet"
+	href="js/angular-material-1.1.1/angular-material.min.css"></link>
+
+<!-- Application JS -->
+<script type="text/javascript" src="js/app/app.js"></script>
+<script type="text/javascript"
+	src="js/app/controller/AddCustomerController.js"></script>
+<script type="text/javascript"
+	src="js/app/controller/UpdateCustomerController.js"></script>
+</head>
+<body>
+
+	<md-content> <md-tabs md-dynamic-height md-border-bottom>
+	<md-tab label="Add Customer"> <md-content class="md-padding">
+	<div data-ng-controller="AddCustomerController" layout="column"
+		ng-cloak class="md-inline-form">
+		<md-content md-theme="docs-dark" layout-gt-sm="row" layout-padding>
+		<div>
+			<md-input-container> <label>First name</label> <input
+				ng-model="customer.firstName"> </md-input-container>
+		</div>
+		<div>
+			<md-input-container> <label>Last Name</label> <input
+				ng-model="customer.lastName"> </md-input-container>
+		</div>
+		<div>
+			<md-input-container> <label>Mobile No</label> <input
+				ng-model="customer.mobileno"> </md-input-container>
+
+		</div>
+		</md-content>
+		<h1>Address</h1>
+
+		<md-content md-theme="docs-dark" layout-gt-sm="row" layout-padding>
+		<div>
+			<md-input-container> <label>Address Line
+				1</label> <input ng-model="customer.address.addressLine1"> </md-input-container>
+		</div>
+		<div>
+			<md-input-container> <label>Address Line
+				2</label> <input ng-model="customer.address.addressLine2"> </md-input-container>
+		</div>
+		<div>
+			<md-input-container> <label>Address Line
+				3</label> <input ng-model="customer.address.addressLine3"> </md-input-container>
+
+		</div>
+		</md-content>
+		<md-content md-theme="docs-dark" layout-gt-sm="row" layout-padding>
+		<div>
+			<md-input-container> <label>City </label> <input
+				ng-model="customer.address.city"> </md-input-container>
+		</div>
+		<div>
+			<md-input-container> <label>Post Code </label> <input
+				ng-model="customer.address.postCode"> </md-input-container>
+		</div>
+		<div>
+			<md-input-container> <label>Country </label> <input
+				ng-model="customer.address.country"> </md-input-container>
+
+		</div>
+		</md-content>
+		<section layout="row" layout-sm="column" layout-align="center center"
+			layout-wrap>
+			<md-button class="md-raised md-primary" data-ng-click="addCustomer()">Add</md-button>
+			<md-button class="md-raised md-warn" data-ng-click="clearData()">Clear</md-button>
+			<div class="label">Raised</div>
+		</section>
+	</div></md-tab> <md-tab label="Update Customer"> <md-content
+		class="md-padding">
+	<div data-ng-controller="UpdateCustomerController" layout="column"
+		ng-cloak class="md-inline-form">
+		<md-content md-theme="docs-dark" layout-gt-sm="row" layout-padding>
+		<div>
+			<md-input-container> <label>Customer Id</label>
+			<input ng-model="customer.customerId"> </md-input-container>
+			<md-input-container> <label>First name</label> <input
+				ng-model="customer.firstName"> </md-input-container>
+		</div>
+		<div>
+			<md-input-container> <label>Last Name</label> <input
+				ng-model="customer.lastName"> </md-input-container>
+		</div>
+		<div>
+			<md-input-container> <label>Mobile No</label> <input
+				ng-model="customer.mobileno"> </md-input-container>
+
+		</div>
+		</md-content>
+		<h1>Address</h1>
+
+		<md-content md-theme="docs-dark" layout-gt-sm="row" layout-padding>
+		<div>
+			<md-input-container> <label>Address Line
+				1</label> <input ng-model="customer.address.addressLine1"> </md-input-container>
+
+			<md-input-container> <label>Address Line
+				2</label> <input ng-model="customer.address.addressLine2"> </md-input-container>
+		</div>
+		<div>
+			<md-input-container> <label>Address Line
+				3</label> <input ng-model="customer.address.addressLine3"> </md-input-container>
+
+		</div>
+		</md-content>
+		<md-content md-theme="docs-dark" layout-gt-sm="row" layout-padding>
+		<div>
+			<md-input-container> <label>City </label> <input
+				ng-model="customer.address.city"> </md-input-container>
+		</div>
+		<div>
+			<md-input-container> <label>Post Code </label> <input
+				ng-model="customer.address.postCode"> </md-input-container>
+		</div>
+		<div>
+			<md-input-container> <label>Country </label> <input
+				ng-model="customer.address.country"> </md-input-container>
+
+		</div>
+		</md-content>
+		<section layout="row" layout-sm="column" layout-align="center center"
+			layout-wrap>
+			<md-button class="md-raised md-primary" data-ng-click="updateCustomer()">Update</md-button>
+			<md-button class="md-raised md-warn" data-ng-click="clearData()">Clear</md-button>
+			<div class="label">Raised</div>
+		</section>
+	</div>
+	</md-content> </md-tab> </md-tabs> </md-content>
+
+</body>
+</html>

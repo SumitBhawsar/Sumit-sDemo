@@ -4,6 +4,10 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.jms.ConnectionFactory;
+import javax.jms.Queue;
+
+import org.apache.activemq.command.ActiveMQQueue;
 import org.axonframework.commandhandling.CommandBus;
 import org.axonframework.commandhandling.annotation.AggregateAnnotationCommandHandler;
 import org.axonframework.commandhandling.annotation.AnnotationCommandHandlerBeanPostProcessor;
@@ -35,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -46,6 +51,11 @@ import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.jms.annotation.EnableJms;
+import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
+import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
+import org.springframework.jms.support.converter.MessageConverter;
+import org.springframework.jms.support.converter.MessageType;
 
 import com.capgemini.customeronboarding.addcustomer.constants.ApplicationPropertyConstants;
 import com.capgemini.customeronboarding.aggregate.Customer;
@@ -56,12 +66,16 @@ import com.mongodb.MongoClient;
 @SpringBootApplication
 @EnableAutoConfiguration
 @EnableMongoRepositories
+@EnableJms
 @ComponentScan(basePackages = { "com.capgemini.customeronboarding" })
 public class CreatecustomerApplication {
 
 	@Autowired
 	private Environment envirnment;
-
+	
+	@Autowired
+	private ConnectionFactory connectionFactory;
+	
 	public static void main(String[] args) {
 		SpringApplication.run(CreatecustomerApplication.class, args);
 		// let's start with the Command Bus
@@ -130,7 +144,8 @@ public class CreatecustomerApplication {
 	}
 
 	@Bean
-	public AnnotationEventListenerBeanPostProcessor annotationEventListenerBeanPostProcessor() throws UnknownHostException {
+	public AnnotationEventListenerBeanPostProcessor annotationEventListenerBeanPostProcessor()
+			throws UnknownHostException {
 		AnnotationEventListenerBeanPostProcessor processor = new AnnotationEventListenerBeanPostProcessor();
 
 		processor.setEventBus(clusteringEventBus());
@@ -157,13 +172,12 @@ public class CreatecustomerApplication {
 		return commandGateway;
 	}
 
-	/*@Bean
-	public EventBus eventBus() {
-		EventBus eventBus = new SimpleEventBus();
-		AnnotationEventListenerAdapter.subscribe(customerAddedEventHandler(), eventBus);
-		return eventBus;
-	}
-*/
+	/*
+	 * @Bean public EventBus eventBus() { EventBus eventBus = new
+	 * SimpleEventBus();
+	 * AnnotationEventListenerAdapter.subscribe(customerAddedEventHandler(),
+	 * eventBus); return eventBus; }
+	 */
 	@Bean
 	public CustomerAddedEventHandler customerAddedEventHandler() {
 		return new CustomerAddedEventHandler();
@@ -243,6 +257,7 @@ public class CreatecustomerApplication {
 	public ClusterSelector clusterSelector() throws UnknownHostException {
 		Map<String, Cluster> clusterMap = new HashMap<>();
 		clusterMap.put("com.capgemini.customeronboarding.eventhandler", normalCluster());
+		clusterMap.put("com.capgemini.customeronboarding.activemq", normalCluster());
 		clusterMap.put("com.capgemini.customeronboarding.replay", replayCluster());
 		return new ClassNamePrefixClusterSelector(clusterMap);
 	}
@@ -277,11 +292,36 @@ public class CreatecustomerApplication {
 	 * incoming event
 	 *
 	 * @return a {@link ClusteringEventBus} implementation of {@link EventBus}
-	 * @throws UnknownHostException 
+	 * @throws UnknownHostException
 	 */
 	@Bean
 	public EventBus clusteringEventBus() throws UnknownHostException {
 		ClusteringEventBus clusteringEventBus = new ClusteringEventBus(clusterSelector(), terminal());
 		return clusteringEventBus;
 	}
+
+	/********************* Active MQ **********************/
+
+	@Bean
+	public Queue queue() {
+		return new ActiveMQQueue(envirnment.getProperty(ApplicationPropertyConstants.MQ_QUEUE_NAME));
+	}
+
+	@Bean
+	public DefaultJmsListenerContainerFactory myFactory(DefaultJmsListenerContainerFactoryConfigurer configurer) {
+		DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+		configurer.configure(factory, connectionFactory);
+		factory.setMessageConverter(jacksonJmsMessageConverter());
+		return factory;
+	}
+
+
+	@Bean // Serialize message content to json using TextMessage
+	public MessageConverter jacksonJmsMessageConverter() {
+		MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();
+		converter.setTargetType(MessageType.TEXT);
+		converter.setTypeIdPropertyName("_type");
+		return converter;
+	}
+
 }
